@@ -1,6 +1,11 @@
 // Global variable for the base URL
 var baseUrl = 'http://localhost:11434';
-varmessages = [];
+var messages = [
+    // {
+    //     role: 'system',
+    //     content: 'You are a helpful assistant.'
+    // }
+];
 
 // Function to set the base URL
 function setBaseUrl(url) {
@@ -23,6 +28,7 @@ function fetchAvailableModels() {
 }
 
 function submitPrompt(model, system, prompt) {
+
     if (!model) {
         return Promise.reject('Model not specified.');
     }
@@ -35,6 +41,13 @@ function submitPrompt(model, system, prompt) {
         return Promise.reject('User Prompt not specified.');
     }
 
+    messages.push({
+        role: 'user',
+        content: prompt
+    });
+
+    populateMessageHistory();
+
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +55,7 @@ function submitPrompt(model, system, prompt) {
             model, 
             messages: [
                 { role: 'system', content: system },
-                { role: 'user', content: prompt }
+                ...messages,
             ]
         })
         // stream: false

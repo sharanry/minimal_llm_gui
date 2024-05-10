@@ -42,6 +42,22 @@
         <div class="form-group">
             <label for="systemPrompt">System Prompt:</label>
             <textarea type="text" class="form-control" id="systemPrompt" rows="3"></textarea>
+
+            <label for="messageHistory">Message History:</label>
+            <div id="messageHistory" class="form-control" style="height: 150px; overflow-y: scroll;">
+            </div>
+            <script>
+                function populateMessageHistory() {
+                    const messageHistory = document.getElementById('messageHistory');
+                    messageHistory.innerHTML = '';
+                    messages.forEach(message => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${message.role}: ${message.content}`;
+                        messageHistory.appendChild(listItem);
+                    });
+                }
+            </script>
+
             <label for="promptText">Enter your prompt:</label>
             <textarea class="form-control" id="promptText" rows="3"></textarea>
             <button type="submit" class="btn btn-primary" id="submitPrompt">Submit</button>
@@ -65,6 +81,12 @@
                         reader.read().then(({done, value}) => {
                             if (done) {
                                 console.log('Stream complete');
+                                messages.push({
+                                    role: 'assistant',
+                                    content: responseField.innerText
+                                });
+                                populateMessageHistory();
+                                responseField.innerText = '';
                                 return;
                             }
                             const decoded = new TextDecoder("utf-8").decode(value);
@@ -88,5 +110,8 @@
     <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
     <!-- Local Script -->
     <script src="script.js"></script>
+    <script>
+        populateMessageHistory();
+    </script>
 </body>
 </html>
