@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LM GUI</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Language Model GUI</h1>
+        <form id="lmForm">
+            <div class="form-group">
+                <label for="modelSelect">Select a model:</label>
+                <select class="form-control" id="modelSelect" size="5" style="overflow-y: scroll;">
+                    <!-- Models will be populated here -->
+                </select>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    fetchAvailableModels().then(models => {
+                        console.log({models});
+                        const modelSelect = document.getElementById('modelSelect');
+                        if (models.length === 0) {
+                            document.getElementById('responseField').innerText = 'No models were found.';
+                        } else {
+                            models.forEach(model => {
+                                const option = document.createElement('option');
+                                option.value = model.name;
+                                option.text = `${model.name}`;
+                                modelSelect.appendChild(option);
+                            });
+                        }
+                    }).catch(error => {
+                        console.error(error);
+                        document.getElementById('responseField').innerText = 'The ollama server is not live.';
+                    });
+                });
+            </script>
+        </form>
+        <div class="form-group">
+            <label for="promptText">Enter your prompt:</label>
+            <textarea class="form-control" id="promptText" rows="3"></textarea>
+            <button type="submit" class="btn btn-primary" id="submitPrompt">Submit</button>
+            <div id="responseField" class="mt-3">
+                <p>Response will appear here...</p>
+            </div>
+        </div>
+        <script>
+            document.getElementById('submitPrompt').addEventListener('click', function(event) {
+                console.log('submitPrompt clicked');
+                event.preventDefault();
+                const modelSelect = document.getElementById('modelSelect');
+                const selectedModel = modelSelect.value;
+                const promptText = document.getElementById('promptText').value;
+                submitPrompt(selectedModel, promptText).then(response => {
+                    const responseField = document.getElementById('responseField');
+                    responseField.innerText = ''; // Clear previous responses
+                    const reader = response.body.getReader();
+                    function read() {
+                        reader.read().then(({done, value}) => {
+                            if (done) {
+                                console.log('Stream complete');
+                                return;
+                            }
+                            const decoded = new TextDecoder("utf-8").decode(value);
+                            const decodedJSON = JSON.parse(decoded);
+                            responseField.innerText += decodedJSON.response;
+                            read();
+                        }).catch(error => {
+                            console.error('Error reading stream:', error);
+                            responseField.innerText = 'Failed to read response from the server.';
+                        });
+                    }
+                    read();
+                }).catch(error => {
+                    console.error('Error submitting prompt:', error);
+                    document.getElementById('responseField').innerText = 'Failed to get response from the server.';
+                });
+            });
+        </script>
+    
+    </div>
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+    <!-- Local Script -->
+    <script src="script.js"></script>
+</body>
+</html>
