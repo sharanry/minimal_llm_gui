@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,6 +40,8 @@
             </script>
         </form>
         <div class="form-group">
+            <label for="systemPrompt">System Prompt:</label>
+            <textarea type="text" class="form-control" id="systemPrompt" rows="3"></textarea>
             <label for="promptText">Enter your prompt:</label>
             <textarea class="form-control" id="promptText" rows="3"></textarea>
             <button type="submit" class="btn btn-primary" id="submitPrompt">Submit</button>
@@ -54,7 +56,8 @@
                 const modelSelect = document.getElementById('modelSelect');
                 const selectedModel = modelSelect.value;
                 const promptText = document.getElementById('promptText').value;
-                submitPrompt(selectedModel, promptText).then(response => {
+                const systemPrompt = document.getElementById('systemPrompt').value;
+                submitPrompt(selectedModel, systemPrompt, promptText).then(response => {
                     const responseField = document.getElementById('responseField');
                     responseField.innerText = ''; // Clear previous responses
                     const reader = response.body.getReader();
@@ -66,7 +69,7 @@
                             }
                             const decoded = new TextDecoder("utf-8").decode(value);
                             const decodedJSON = JSON.parse(decoded);
-                            responseField.innerText += decodedJSON.response;
+                            responseField.innerText += decodedJSON.message.content;
                             read();
                         }).catch(error => {
                             console.error('Error reading stream:', error);
