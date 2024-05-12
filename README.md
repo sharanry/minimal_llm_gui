@@ -8,6 +8,9 @@ Built using Bootstrap, HTML, and JavaScript. No backend server, no database, no 
 
 Minimalist design, with focus on the core functionality.
 
+
+## Setup
+
 1. Install ollama server - https://ollama.com/download.
 
 2. Start ollama server locally using:
