@@ -1,4 +1,5 @@
 # Minimal LM GUI
+[ WORK IN PROGRESS ]
 
 Access it at https://sharanry.github.io/minimal_llm_gui/
 
